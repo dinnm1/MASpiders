@@ -4,44 +4,52 @@ Spyder Editor
 
 This is a temporary script file.
 """
-
+from grpc._channel import _start_unary_request
 from scrapy.spiders import CrawlSpider, Rule
 from nyt.items import NewsItem
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
+import re
 
 class TestSpider(CrawlSpider):
 
-    def __init__(self, uni=None, *args, **kwargs):
-        self.year = str(year)
-        super(TestSpider, self).__init__(*args, **kwargs)
+    def __init__(self, year=None, *args, **kwargs):
+        self.year = year
         self.start_urls = ['http://spiderbites.nytimes.com/' + year + '/']  # The starting page for the crawls
+        self.rules = (Rule(LxmlLinkExtractor(
+        # allow=(self.year)),
+        # allow=(r"nytimes.com/"+re.escape(self.year))),
+        # allow=(r"nytimes.com/" + re.escape(self.start_urls))),
+        #allow=("1995")),
+        #allow=(year)),
+        allow=('nytimes.com/'+year)),
+        follow=True,
+        callback='parse_item'),)
+
+        super(TestSpider, self).__init__(*args, **kwargs)
+
+
+
 
     name = "nyt" #This name will help while running the crawler itself
     allowed_domains = ["nytimes.com"] #which domains are accessible for this crawler
+    #start_urls = ['http://spiderbites.nytimes.com/1997/'] #initial URLs that are to be accessed first
 
-    start_urls = ['http://spiderbites.nytimes.com/1997/'] #initial URLs that are to be accessed first
 
     custom_settings = {
-        # 'LOG_FILE': r"I:\COURSES\EAD\AITEIT3\BITY3\IN700001 Project\NLP\david\bu.log",
-        'LOG_FILE': "./data/gen.log",
+        'LOG_FILE': "./nyt.log",
         'LOG_ENABLED': True,
         'LOG_STDOUT': True,
-        'LOG_LEVEL': 'INFO',  # DEBUG, INFO
-        'DEPTH_LIMIT': 3,
-        # 'FEED_URI': r'file:///I:/COURSES/EAD/AITEIT3/BITY3/IN700001 Project/NLP/david/%(name)sDepthLimit%(depth_limit)s.csv',
-        # 'FEED_URI': "file:///C:/Users/drozado/data/gen.csv",
-        'FEED_URI': r"./data/%(self.year)s.csv",
+        'LOG_LEVEL': 'DEBUG',  # DEBUG, INFO
+        'FEED_URI': r"./%(year)s.csv",
         'FEED_FORMAT': 'csv',
         'AUTOTHROTTLE_ENABLED': False,
     }
-    rules = (Rule(LxmlLinkExtractor(
-            allow=(self.year)),
-            follow=True,
-            callback='parse_item'),)
-		
+
+
     def parse_item(self, response):
 
-        if 'articles_1997' not in response.url:
+        #if 'articles_'+ self.year not in response.url:
+        if 'articles_' + self.year not in response.url:
             item = NewsItem()
 
             item['title'] = response.xpath('//*[@itemprop="headline" or @class="headline"]/text()').extract_first()
