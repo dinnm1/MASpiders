@@ -1,0 +1,13 @@
+setup.py
+nyt/__init__.py
+nyt/items.py
+nyt/middlewares.py
+nyt/pipelines.py
+nyt/settings.py
+nyt/spiders/__init__.py
+nyt/spiders/nyts.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
