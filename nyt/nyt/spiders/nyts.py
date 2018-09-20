@@ -28,7 +28,9 @@ class TestSpider(CrawlSpider):
         # allow=(r"nytimes.com/" + re.escape(self.start_urls))),
         #allow=("1995")),
         #allow=(year)),
-        allow=('nytimes.com/'+year)),
+        allow=('nytimes.com/'+year),
+        deny=('/\?'),#to exclude URLs with /? query strings which were creating a lot of duplicate articles
+        ),
         follow=True,
         callback='parse_item'),)
 
@@ -57,11 +59,21 @@ class TestSpider(CrawlSpider):
             item = NewsItem()
 
             #item['title'] = response.xpath('//*[@itemprop="headline" or @class="headline" or @class="balancedHeadline"]/text()').extract_first()
-            item['title'] = response.xpath('//*[@itemprop="headline"]/span/text() |//*[@itemprop="headline"]/text() ').extract_first()
+            item['title'] = response.xpath('//*[@itemprop="headline"]/span/text() | //*[@itemprop="headline"]/text() ').extract_first()
             item['author'] = response.xpath('//*[@class="byline-author" or @class="author creator" or @itemprop="name"]/text()').extract_first()
-            item['article'] = response.xpath('//*[@class="story-body-text story-content" or @class="story-body-text" or @class="css-18sbwfn" or @class="css-1i0edl6 e2kc3sl0"]/text()').extract()
+            #item['article'] = response.xpath('//*[@class="story-body-text story-content" or @class="story-body-text" or @class="css-18sbwfn" or @class="css-1i0edl6 e2kc3sl0"]/text()').extract()
+            item['article'] = response.xpath('//*[@class="story-body-text story-content" or @class="story-body-text" or @class="css-18sbwfn"'
+                                             'or @ class ="css-1i0edl6 e2kc3sl0"]').xpath("normalize-space(.)").extract()
             item['dop'] = response.xpath('//*[@itemprop="dateModified" or @class="css-pnci9ceqgapgq0" or @datetime]/text()').extract_first()
             item['section'] = response.xpath('//*[@id="kicker"]/span/a/text() | //*[@class="css-nuvmzp"]/text()').extract_first()
+
+            item['imgurl'] = response.xpath('//img[@class="css-11cwn6f"]/@src').extract_first()
+            item['imgcaption'] = response.xpath('//figcaption[@itemprop="caption description"]/span/text()').extract_first()
+
+
             item['url'] = response.url
+
+
+
 
             yield item

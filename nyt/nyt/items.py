@@ -13,6 +13,10 @@ class NewsItem(Item):
     dop = Field()
     section = Field()
 
+    imgurl = Field()
+    imgcaption = Field()
+
+
     #calculated fields
     #images = Field()
     #location = Field()
