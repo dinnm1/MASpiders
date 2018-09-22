@@ -29,7 +29,7 @@ class TestSpider(CrawlSpider):
         #allow=("1995")),
         #allow=(year)),
         allow=('nytimes.com/'+year),
-        deny=('/\?'),#to exclude URLs with /? query strings which were creating a lot of duplicate articles
+        deny=(['/\?','\?']),#to exclude URLs with /? or ? query strings which were creating a lot of duplicate articles
         ),
         follow=True,
         callback='parse_item'),)
