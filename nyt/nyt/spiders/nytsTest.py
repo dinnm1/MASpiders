@@ -23,19 +23,17 @@ class TestSpider(CrawlSpider):
     def __init__(self, year=None, *args, **kwargs):
 
         self.year = year
-        self.start_urls = ['http://spiderbites.nytimes.com/' + year + '/']  # The starting page for the crawls
+        self.start_urls = ['http://spiderbites.nytimes.com/' + year + '/articles_' + year + '_11_00000.html']  # The starting page for the crawls
         self.rules = (Rule(LxmlLinkExtractor(
-
-        allow=('nytimes.com/'+year), #valid from 1981 to 2018
-        deny=(['/\?', '\?', '/classified/']), #valid from 1981 to 2018
-
+        allow=('nytimes.com/'+year+'/11/05/'),
+        deny=(['/\?','\?']),#to exclude URLs with /? or ? query strings which were creating a lot of duplicate articles
         ),
         follow=True,
         callback='parse_item'),)
 
         super(TestSpider, self).__init__(*args, **kwargs)
 
-    name = "nyts" #This name will help while running the crawler itself
+    name = "nytsTest" #This name will help while running the crawler itself
     allowed_domains = ["nytimes.com"] #which domains are accessible for this crawler
     #start_urls = ['http://spiderbites.nytimes.com/1997/'] #initial URLs that are to be accessed first
 
@@ -54,16 +52,11 @@ class TestSpider(CrawlSpider):
     def parse_item(self, response):
         #self.logger.info(response.meta['download_latency'])
         #if 'articles_'+ self.year not in response.url:
-
-        try:
-            scrape_count = int(self.crawler.stats.get_value('item_scraped_count'))
-            if scrape_count % 20000 == 0:
-                print("Entering sleep after " + str(scrape_count) + " scraped items")
-                time.sleep(1000)
-                print("Exiting sleep after " + str(scrape_count) + " scraped items")
-        except:
-            pass
-
+        scrape_count = self.crawler.stats.get_value('item_scraped_count')
+        if scrape_count % 50000 == 0:
+            print("Entering sleep after " + str(scrape_count) + " scraped items")
+            time.sleep(1000)
+            print("Exiting sleep after " + str(scrape_count) + " scraped items")
 
         if 'articles_' + self.year not in response.url:
             item = NewsItem()
@@ -80,10 +73,6 @@ class TestSpider(CrawlSpider):
             item['imgurl'] = response.xpath('//img[@class="css-11cwn6f"]/@src').extract_first()
             item['imgcaption'] = response.xpath('//figcaption[@itemprop="caption description"]/span/text()').extract_first()
 
-
             item['url'] = response.url
-
-
-
 
             yield item

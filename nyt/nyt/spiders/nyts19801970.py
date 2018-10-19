@@ -26,8 +26,8 @@ class TestSpider(CrawlSpider):
         self.start_urls = ['http://spiderbites.nytimes.com/' + year + '/']  # The starting page for the crawls
         self.rules = (Rule(LxmlLinkExtractor(
 
-        allow=('nytimes.com/'+year), #valid from 1981 to 2018
-        deny=(['/\?', '\?', '/classified/']), #valid from 1981 to 2018
+        allow=(['nytimes.com/gst/abstract.html','nytimes.com/'+year]), #valid from 1980 to 1970
+        #deny=(['/\?', '\?', '/classified/']), #valid from 1981 to 2018
 
         ),
         follow=True,
@@ -35,7 +35,7 @@ class TestSpider(CrawlSpider):
 
         super(TestSpider, self).__init__(*args, **kwargs)
 
-    name = "nyts" #This name will help while running the crawler itself
+    name = "nyts19801970" #This name will help while running the crawler itself
     allowed_domains = ["nytimes.com"] #which domains are accessible for this crawler
     #start_urls = ['http://spiderbites.nytimes.com/1997/'] #initial URLs that are to be accessed first
 

@@ -6,21 +6,30 @@ import time
 import shutil
 
 
-yearsNumeral = [2000,2001,2002]
+waitingTimeBetweenYears = 15000
+yearsNumeral = [1976, 1975,]
+
+
 years = [str(y) for y in yearsNumeral]
 
 
 for year in years:
+	print("Starting scraping for year: " + year)
 	log = './"%s"' % year + '.log'
-	cmd = ['scrapy ', 'crawl ', 'nyts ', '-a', 'year=', year, ' --logfile ', log]
+	cmd = ['scrapy ', 'crawl ', 'nyts19801970 ', '-a', 'year=', year, ' --logfile ', log]
 	p = subprocess.Popen([cmd], shell=False, stdout=subprocess.PIPE)  # Asynchronous
 	while p.poll() != 0:
 		pass
-	pr.terminate()  # Terminated the process Which allows next crawl process to be started
-	time.sleep(3600)  #wait one hour until next crawl
+	p.terminate()  # Terminated the process Which allows next crawl process to be started
 
+	shutil.move("./"+year+".log", "D:\\data\\nyt\\test\\"+year+".log")
+	shutil.move("./"+year+".csv", "D:\\data\\nyt\\test\\" + year + ".csv")
 
-	shutil.move("./"+year+".log", "D:\\data\\nyt\\"+year+".log")
-	shutil.move("./"+year+".csv", "D:\\data\\nyt\\" + year + ".csv")
+	print("Finished year: " + year)
+	if year != years[-1]:
+		print("Entering waiting time between crawls for different years")
+		time.sleep(waitingTimeBetweenYears)  #wait until next crawl
+		print("Exited waiting time between crawls for different years")
+
 
 
